@@ -1,0 +1,4 @@
+disk.EnableUUID 							TRUE
+guestinfo.ignition.config.data.encoding 	base64
+guestinfo.ignition.config.data          	codigo-en-base64
+guestinfo.afterburn.initrd.network-kargs 	ip=10.2.82.5::10.2.82.254:255.255.255.0:master2.segob.gob.mx:ens192:none nameserver=10.2.82.1

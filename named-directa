@@ -1,0 +1,20 @@
+$TTL    86400
+@               IN SOA openshift.segob.gob.mx. root (
+42              ; serial
+3H              ; refresh
+15M             ; retry
+1W              ; expiry
+1D )            ; minimum
+                IN NS           ns
+;use IP address of named machine for ns
+ns              IN A          10.2.82.1
+api             IN      A       10.2.82.1 
+api-int         IN      A       10.2.82.1 
+*.apps          IN      A       10.2.82.1 
+bootstrap       IN      A       10.2.82.2 
+master0         IN      A       10.2.82.3 
+master1         IN      A       10.2.82.4 
+master2         IN      A       10.2.82.5 
+worker0         IN      A       10.2.82.6 
+worker1         IN      A       10.2.82.7 
+worker2         IN      A       10.2.82.8
