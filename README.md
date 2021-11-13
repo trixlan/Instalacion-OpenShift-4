@@ -10,6 +10,7 @@ description: Guia de instalacion de OpenShift 4 UPI, donde se explica paso a pas
 - [OpenShift 4 Bare Metal ](#openshift-4-bare-metal)
     - [Diagrama de arquitectura](#diagrama-de-arquitectura)
     - [Descargas](#descargas)
+    - [Instalacion y Configuracion de RHEL - Bastion](#instalacion-y-configuracion-del-rhel---bastion)
     - [Instalación y Configuración DNS](#instalacion-y-configuracion-del-dns)
     - [Instalación y Configuración HAProxy](#instalacion-y-configuracion-del-haproxy)
     - [Instalación y Configuración Apache](#instalacion-y-configuracion-del-apache)
@@ -35,6 +36,16 @@ description: Guia de instalacion de OpenShift 4 UPI, donde se explica paso a pas
     - Red Hat Enterprise Linux CoreOs (RHCOS)
         - rhcos-X.X.X-x86_64-metal.x86_64.raw.gz
         - rhcos-X.X.X-x86_64-installer.x86_64.iso
+
+## Instalacion y Configuracion del RHEL - Bastion
+
+Se debe instalar RHEL en una maquina virtual con las siguientes caracteristicas minimas, desde esta maquina se lanzara la instalación de OpenShift.
+
+Sistema Operativo | vCores | Ram | Storage
+:---:|:---:|:---:|:---:
+RHEL 8 | 2 | 8 GB | 100 GB
+
+Una vez creada esta maquina se deben agregar los siguientes programas
 
 ## Instalacion y Configuracion del DNS
 
@@ -64,7 +75,7 @@ Agregamos los DNS de google y se agrega el segmento de red de las maquinas
 
 Configuración en el archivo *named.conf*
 ```
-zone "openshift.segob.gob.mx" IN {
+zone "openshift.xxx.gob.mx" IN {
         type master;
         file "directa";
         allow-update { none; };
@@ -74,7 +85,7 @@ zone "openshift.segob.gob.mx" IN {
 Archivo *named-directa*
 ```
 $TTL    86400
-@               IN SOA openshift.segob.gob.mx. root (
+@               IN SOA openshift.xxx.gob.mx. root (
 42              ; serial
 3H              ; refresh
 15M             ; retry
@@ -108,22 +119,36 @@ zone "82.2.10.in-addr.arpa" IN {
 Archivo *named-inversa*
 ```
 $TTL    86400
-@       IN      SOA     openshift.segob.gob.mx. root.openshift.segob.gob.mx.  (
+@       IN      SOA     openshift.xxx.gob.mx. root.openshift.xxx.gob.mx.  (
     1997022700 ; serial
     28800      ; refresh
     14400      ; retry
     3600000    ; expire
     86400 )    ; minimum
-@ IN      NS      ns.openshift.segob.gob.mx.
-1 IN      PTR     api.openshift.segob.gob.mx. 
-1 IN      PTR     api-int.openshift.segob.gob.mx. 
-2 IN      PTR     bootstrap.openshift.segob.gob.mx. 
-3 IN      PTR     master0.openshift.segob.gob.mx. 
-4 IN      PTR     master1.openshift.segob.gob.mx. 
-5 IN      PTR     master2.openshift.segob.gob.mx. 
-6 IN      PTR     worker0.openshift.segob.gob.mx. 
-7 IN      PTR     worker1.openshift.segob.gob.mx. 
-8 IN      PTR     worker2.openshift.segob.gob.mx.
+@ IN      NS      ns.openshift.xxx.gob.mx.
+1 IN      PTR     api.openshift.xxx.gob.mx. 
+1 IN      PTR     api-int.openshift.xxx.gob.mx. 
+2 IN      PTR     bootstrap.openshift.xxx.gob.mx. 
+3 IN      PTR     master0.openshift.xxx.gob.mx. 
+4 IN      PTR     master1.openshift.xxx.gob.mx. 
+5 IN      PTR     master2.openshift.xxx.gob.mx. 
+6 IN      PTR     worker0.openshift.xxx.gob.mx. 
+7 IN      PTR     worker1.openshift.xxx.gob.mx. 
+8 IN      PTR     worker2.openshift.xxx.gob.mx.
+```
+
+Se debe agregar el servidor de DNS al basion para poder realizar las pruebas en el archivo */etc/resolve.conf*
+
+```bash
+nameserver 10.2.82.1
+```
+
+Se debe confirmar que funcione de manera correcta el DNS
+
+```bash
+dig api.openshift.xxx.gob.mx
+
+dig -x 10.2.82.1
 ```
 
 ## Instalacion y Configuracion del HAProxy
@@ -211,7 +236,29 @@ backend ingress-https
 
 ## Servidor Apache
 
+Instalamos Apache para poder tener los archivos de los ignition de los servidores y el raw del CoreOS.
+
+```bash
+   dnf install httpd -y
+```
+
+Modificamos el puerto por default por el puerto 8080
+
+```bash
+   sed -i 's/Listen 80/Listen 0.0.0.0:8080/' /etc/httpd/conf/httpd.conf
+```
+
+Creamos dos carpetas para copiar mas adelante los archivos en las carpetas */var/www/html/ignitions/* y */var/www/html/raw/*
+
 ## Maquinas Virtuales
+
+Las maquinas virtuales de los master, los workers y el bootstrap se deben crear con las siguientes caracteristicas, solo las definiciones, no se deben iniciar
+
+Maquina | Sistema Operativo | vCores | Ram | Storage
+:---:|:---:|:---:|:---:|:---:
+Bootstrap | CoreOS | 4 | 16 GB | 100 GB
+Master | CoreOS | 4 | 16 GB | 100 GB
+Worker | CoreOS | 4 | 16 GB | 100 GB
 
 ## Instalacion del cliente
 

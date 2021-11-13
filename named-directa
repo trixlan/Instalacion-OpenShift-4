@@ -1,5 +1,5 @@
 $TTL    86400
-@               IN SOA openshift.segob.gob.mx. root (
+@               IN SOA openshift.xxx.gob.mx. root (
 42              ; serial
 3H              ; refresh
 15M             ; retry

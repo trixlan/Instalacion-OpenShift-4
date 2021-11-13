@@ -1,20 +1,17 @@
 $TTL    86400
-@               IN SOA openshift.segob.gob.mx. root (
-42              ; serial
-3H              ; refresh
-15M             ; retry
-1W              ; expiry
-1D )            ; minimum
-                IN NS           ns
-;use IP address of named machine for ns
-ns              IN A          10.2.82.1
-api             IN      A       10.2.82.1 
-api-int         IN      A       10.2.82.1 
-*.apps          IN      A       10.2.82.1 
-bootstrap       IN      A       10.2.82.2 
-master0         IN      A       10.2.82.3 
-master1         IN      A       10.2.82.4 
-master2         IN      A       10.2.82.5 
-worker0         IN      A       10.2.82.6 
-worker1         IN      A       10.2.82.7 
-worker2         IN      A       10.2.82.8
+@       IN      SOA     openshift.xxx.gob.mx. root.openshift.xxx.gob.mx.  (
+    1997022700 ; serial
+    28800      ; refresh
+    14400      ; retry
+    3600000    ; expire
+    86400 )    ; minimum
+@ IN      NS      ns.openshift.xxx.gob.mx.
+1 IN      PTR     api.openshift.xxx.gob.mx. 
+1 IN      PTR     api-int.openshift.xxx.gob.mx. 
+2 IN      PTR     bootstrap.openshift.xxx.gob.mx. 
+3 IN      PTR     master0.openshift.xxx.gob.mx. 
+4 IN      PTR     master1.openshift.xxx.gob.mx. 
+5 IN      PTR     master2.openshift.xxx.gob.mx. 
+6 IN      PTR     worker0.openshift.xxx.gob.mx. 
+7 IN      PTR     worker1.openshift.xxx.gob.mx. 
+8 IN      PTR     worker2.openshift.xxx.gob.mx.
