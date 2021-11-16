@@ -19,6 +19,7 @@ description: Guia de instalacion de OpenShift 4 UPI, donde se explica paso a pas
     - [Archivo de Instalación](#archivo-de-instalacion)
     - [Creacion de Ignition Files](#creacion-de-ignition-files)
     - [Despliege de OpenShift](#despliegue-de-openshift)
+    - [Monitoreo de la Instalacion](#monitoreo-de-la-instalacion)
 
 ## Diagrama de arquitectura
 
@@ -30,9 +31,9 @@ description: Guia de instalacion de OpenShift 4 UPI, donde se explica paso a pas
 1. Ingresar en [Create an OpenShift cluster](https://console.redhat.com/openshift)
 1. Seleccionar "Create Cluster" - "Datacenter" - "Bare Metal (x86_64)" - "User-provisioned infrastructure"
 1. Descargamos los siguientes archivos
-    - OpenShift Installer
+    - OpenShift Installer - openshift-install-linux.tar.gz
     - Pull Secret
-    - Cliente de OpenShift (Command line interface)
+    - Cliente de OpenShift - openshift-client-linux.tar.gz
     - Red Hat Enterprise Linux CoreOs (RHCOS)
         - rhcos-X.X.X-x86_64-metal.x86_64.raw.gz
         - rhcos-X.X.X-x86_64-installer.x86_64.iso
@@ -45,7 +46,11 @@ Sistema Operativo | vCores | Ram | Storage
 :---:|:---:|:---:|:---:
 RHEL 8 | 2 | 8 GB | 100 GB
 
-Una vez creada esta maquina se deben agregar los siguientes programas
+Una vez creada esta maquina se deben agregar los siguientes programas, despues de actualizar todos los paquetes
+
+```bash
+   dnf update
+```
 
 ## Instalacion y Configuracion del DNS
 
@@ -254,6 +259,10 @@ Creamos dos carpetas para copiar mas adelante los archivos en las carpetas */var
 
 Las maquinas virtuales de los master, los workers y el bootstrap se deben crear con las siguientes caracteristicas, solo las definiciones, no se deben iniciar
 
+Las maquinas se deben crear en una red donde todas las maquinas puedan verse a travez de las IPs.
+
+La ISO de CoreOs se debe agregar al hipervisor, para tenerlo disponible cuando se arranquen las maquinas.
+
 Maquina | Sistema Operativo | vCores | Ram | Storage
 :---:|:---:|:---:|:---:|:---:
 Bootstrap | CoreOS | 4 | 16 GB | 100 GB
@@ -262,8 +271,127 @@ Worker | CoreOS | 4 | 16 GB | 100 GB
 
 ## Instalacion del cliente
 
+El cliente se debe instalar en la maquina de bastion para ejectuar todos los comandos de instalacion desde está.
+
+1. Extraemos el cliente y lo copiamos a `/usr/local/bin`
+
+   ```bash
+   tar xvf openshift-client-linux.tar.gz
+   mv oc kubectl /usr/local/bin
+   ```
+
+1. Confirmamos la version de OpenShift instalada
+
+   ```bash
+   kubectl version
+   oc version
+   ```
 ## Archivo de Instalacion
+
+Extraemos el instalador de OpenShift
+
+```bash
+   tar xvf openshift-install-linux.tar.gz
+```
 
 ## Creacion de Ignition Files
 
+Generamos  la llave del SSH key
+
+```bash
+   ssh-keygen
+```
+
+Creamos una carpeta para almacenar todos los archivos de instalación
+
+```bash
+   mkdir ~/ocp-install
+```
+
+Vamos a crear el archivo de instalacion *install-config.yaml*
+
+- Vamos a agregar el pull-secret.txt
+- Vamos a agregar el *~/.ssh/id__rsa.pub*
+
+```bash
+   vim ~/ocp-install/install-config.yaml
+```
+- Vamos a crear una copia del *install-config.yaml*, por si llegamos a necesitarlo otravez.
+
+```bash
+   cp ~/ocp-install/install-config.yaml ~/.
+```
+
+Generamos los manifests
+
+```bash
+   ~/openshift-install create manifests --dir ~/ocp-install
+```
+
+Generamos los ignitions
+
+```bash
+   ~/openshift-install create ignition-configs --dir ~/ocp-install/
+```
+
+Copiamos los ignition en la carpeta del servidor apache
+
+```bash
+   cp -R ~/ocp-install/* /var/www/html/ignitions
+```
+
+Tambien movemos el Raw de CoreOs a la carpeta del servidor apache
+
+```bash
+   mv ~/rhcos-X.X.X-x86_64-metal.x86_64.raw.gz /var/www/html/raw
+```
+
+Cambiamos los permisos de las carpetas del servidor apache
+
+```bash
+   chcon -R -t httpd_sys_content_t /var/www/html/ocp4/
+   chown -R apache: /var/www/html/ocp4/
+   chmod 755 /var/www/html/ocp4/
+```
+
+Verificamos que podamos llegar a las carpetas del servidor
+
+```bash
+   curl localhost:8080/ocp4/
+```
+
 ## Despliegue de OpenShift
+
+Cuando se despliegue cada maquina se debe pasar esta informacion al inicio de la maquina, para que nos deje escribir necesitamos presionar tab al iniciar la maquina.
+
+- Bootstrap
+
+```bash
+   ip:10.2.82.3::10.2.82.254:255.255.255.0:bootstrap.openshift.segob.com.mx:ens192:none nameserver=10.2.82.1 coreos.inst.install_dev=sda coreos.inst.image_url=http://10.2.82.1:8080/raw/rhcos.raw.gz coreos.inst.ignition_url=http://10.2.82.1:8080/ignitions/bootstrap.ign 
+```
+
+- Master
+
+```bash
+   ip:10.2.82.3::10.2.82.254:255.255.255.0:bootstrap.openshift.segob.com.mx:ens192:none nameserver=10.2.82.1 coreos.inst.install_dev=sda coreos.inst.image_url=http://10.2.82.1:8080/raw/rhcos.raw.gz coreos.inst.ignition_url=http://10.2.82.1:8080/ignitions/master.ign
+```
+
+- Worker
+
+```bash
+   ip:10.2.82.3::10.2.82.254:255.255.255.0:bootstrap.openshift.segob.com.mx:ens192:none nameserver=10.2.82.1 coreos.inst.install_dev=sda coreos.inst.image_url=http://10.2.82.1:8080/raw/rhcos.raw.gz coreos.inst.ignition_url=http://10.2.82.1:8080/ignitions/worker.ign 
+```
+
+## Monitoreo de la Instalacion
+
+Vamos a monitorear la instalacion del Bootstrap
+
+```bash
+   ~/openshift-install --dir ~/ocp-install wait-for bootstrap-complete --log-level=debug
+```
+
+Una vez terminado de instalarse el bootstrap vamos a monitorear las instlacion de todo el cluster
+
+```bash
+   ~/openshift-install --dir ~/ocp-install wait-for bootstrap-complete --log-level=debug
+```
