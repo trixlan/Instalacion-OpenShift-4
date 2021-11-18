@@ -1,6 +1,6 @@
 ---
 title: OpenShift 4 Bare Metal Instalacion - User Provisioned Infraestructure (UPI)
-description: Guia de instalacion de OpenShift 4 UPI, donde se explica paso a paso como realizar cada uno de los pasos de la instalacion.  
+description: Guia de instalacion de OpenShift 4 UPI (para ambientes Demo/Desarrollo), donde se explica paso a paso como realizar cada uno de los pasos de la instalacion.  
 ---
 
 # OpenShift 4 Bare Metal Instalacion - User Provisioned Infraestructure (UPI)
