@@ -367,7 +367,7 @@ Cuando se despliegue cada maquina se debe pasar esta informacion al inicio de la
 - Bootstrap
 
 ```bash
-   ip:10.2.82.3::10.2.82.254:255.255.255.0:bootstrap.openshift.segob.com.mx:ens192:none nameserver=10.2.82.1 coreos.inst.install_dev=sda coreos.inst.image_url=http://10.2.82.1:8080/raw/rhcos.raw.gz coreos.inst.ignition_url=http://10.2.82.1:8080/ignitions/bootstrap.ign 
+   ip=10.2.82.3::10.2.82.254:255.255.255.0:bootstrap.openshift.segob.com.mx:ens192:none nameserver=10.2.82.1 coreos.inst.install_dev=sda coreos.inst.image_url=http://10.2.82.1:8080/raw/rhcos.raw.gz coreos.inst.ignition_url=http://10.2.82.1:8080/ignitions/bootstrap.ign 
 ```
 
 - Master
