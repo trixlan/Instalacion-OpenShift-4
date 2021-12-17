@@ -373,13 +373,13 @@ Cuando se despliegue cada maquina se debe pasar esta informacion al inicio de la
 - Master
 
 ```bash
-   ip:10.2.82.3::10.2.82.254:255.255.255.0:bootstrap.openshift.segob.com.mx:ens192:none nameserver=10.2.82.1 coreos.inst.install_dev=sda coreos.inst.image_url=http://10.2.82.1:8080/raw/rhcos.raw.gz coreos.inst.ignition_url=http://10.2.82.1:8080/ignitions/master.ign
+   ip=10.2.82.3::10.2.82.254:255.255.255.0:bootstrap.openshift.segob.com.mx:ens192:none nameserver=10.2.82.1 coreos.inst.install_dev=sda coreos.inst.image_url=http://10.2.82.1:8080/raw/rhcos.raw.gz coreos.inst.ignition_url=http://10.2.82.1:8080/ignitions/master.ign
 ```
 
 - Worker
 
 ```bash
-   ip:10.2.82.3::10.2.82.254:255.255.255.0:bootstrap.openshift.segob.com.mx:ens192:none nameserver=10.2.82.1 coreos.inst.install_dev=sda coreos.inst.image_url=http://10.2.82.1:8080/raw/rhcos.raw.gz coreos.inst.ignition_url=http://10.2.82.1:8080/ignitions/worker.ign 
+   ip=10.2.82.3::10.2.82.254:255.255.255.0:bootstrap.openshift.segob.com.mx:ens192:none nameserver=10.2.82.1 coreos.inst.install_dev=sda coreos.inst.image_url=http://10.2.82.1:8080/raw/rhcos.raw.gz coreos.inst.ignition_url=http://10.2.82.1:8080/ignitions/worker.ign 
 ```
 
 ## Monitoreo de la Instalacion
@@ -393,5 +393,5 @@ Vamos a monitorear la instalacion del Bootstrap
 Una vez terminado de instalarse el bootstrap vamos a monitorear las instlacion de todo el cluster
 
 ```bash
-   ~/openshift-install --dir ~/ocp-install wait-for bootstrap-complete --log-level=debug
+   ~/openshift-install --dir ~/ocp-install wait-for install-complete
 ```
